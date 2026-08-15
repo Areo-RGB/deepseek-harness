@@ -26,22 +26,23 @@ jobs:
           from pathlib import Path
           path = Path('pnpm-lock.yaml')
           text = path.read_text()
-          old = """      '@deepseek-ai/dsh-client-ui-tool':
+          start = text.index('\n  packages/bundle/web-app:\n')
+          end = text.index('\n  packages/', start + 1)
+          section = text[start:end]
+          needle = """      '@deepseek-ai/dsh-client-ui-tool':
                 specifier: workspace:^
                 version: link:../../client/ui-tool
-              '@deepseek-ai/dsh-client-ui-trajectory':
           """
-          new = """      '@deepseek-ai/dsh-client-ui-tool':
-                specifier: workspace:^
-                version: link:../../client/ui-tool
-              '@deepseek-ai/dsh-client-ui-tool-failures':
+          addition = """      '@deepseek-ai/dsh-client-ui-tool-failures':
                 specifier: workspace:^
                 version: link:../../client/ui-tool-failures
-              '@deepseek-ai/dsh-client-ui-trajectory':
           """
-          if text.count(old) != 1:
-              raise SystemExit(f'expected exactly one lock importer target, got {text.count(old)}')
-          path.write_text(text.replace(old, new))
+          if section.count(needle) != 1:
+              raise SystemExit(f'expected one web-app ui-tool entry, got {section.count(needle)}')
+          if '@deepseek-ai/dsh-client-ui-tool-failures' in section:
+              raise SystemExit('web-app lock importer already contains ui-tool-failures')
+          section = section.replace(needle, needle + addition)
+          path.write_text(text[:start] + section + text[end:])
           PY
           grep -A3 -B3 "dsh-client-ui-tool-failures" pnpm-lock.yaml
 
