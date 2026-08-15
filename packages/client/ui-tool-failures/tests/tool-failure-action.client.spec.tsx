@@ -109,7 +109,7 @@ describe('failedToolCalls', () => {
   })
 
   it('falls back to an empty summary when no text or structured error exists', () => {
-    expect(failedToolCalls([settled({ content: [], error: undefined })])[0]?.summary).toBe('')
+    expect(failedToolCalls([settled({ content: [] })])[0]?.summary).toBe('')
   })
 })
 
