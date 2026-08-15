@@ -202,6 +202,10 @@
     - id: ui-tool
       name: '@deepseek-ai/dsh-client-ui-tool'
 
+    # Read-only failed Tool-call aggregate in the Session utilities strip.
+    - id: ui-tool-failures
+      name: '@deepseek-ai/dsh-client-ui-tool-failures'
+
     - id: ui-cordis
       name: '@deepseek-ai/dsh-client-ui-cordis'
 
