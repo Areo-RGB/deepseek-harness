@@ -1,0 +1,189 @@
+i-conversation`](../packages/client/ui-conversation), [`client-ui-primitives`](../packages/client/ui-primitives), [`client-ui-slots`](../packages/client/ui-slots), [`invariants`](../packages/runtime-diagnostics/invariants) |
++| [`client-ui-tool-failures`](../packages/client/ui-tool-failures) | `client` | [`client-locale`](../packages/client/locale), [`client-runtime`](../packages/client/runtime), [`client-ui-conversation`](../packages/client/ui-conversation), [`client-ui-primitives`](../packages/client/ui-primitives), [`client-ui-slots`](../packages/client/ui-slots), [`invariants`](../packages/runtime-diagnostics/invariants) |
+ | [`client-ui-workflow-run`](../packages/client/ui-workflow-run) | `client` | [`client-locale`](../packages/client/locale), [`client-runtime`](../packages/client/runtime), [`client-ui-conversation`](../packages/client/ui-conversation), [`client-ui-primitives`](../packages/client/ui-primitives), [`client-ui-slots`](../packages/client/ui-slots), [`invariants`](../packages/runtime-diagnostics/invariants), [`session`](../packages/core/session), [`tool-workflow`](../packages/workflow/tool-workflow), [`workflow`](../packages/workflow/workflow) |
+ | [`host-directory-picker-auto`](../packages/host/directory-picker-auto) | `host` | [`client-ui-directory-picker-browse`](../packages/client/ui-directory-picker-browse), [`client-ui-directory-picker-native`](../packages/client/ui-directory-picker-native), [`host-directory-picker-browse`](../packages/host/directory-picker-browse), [`host-directory-picker-native`](../packages/host/directory-picker-native), [`host-webserver`](../packages/host/webserver), [`invariants`](../packages/runtime-diagnostics/invariants) |
+ | [`session-log-export`](../packages/session-query/session-log-export) | `session-query` | [`client-locale`](../packages/client/locale), [`client-runtime`](../packages/client/runtime), [`client-ui-commands`](../packages/client/ui-commands), [`client-ui-conversation`](../packages/client/ui-conversation), [`client-ui-primitives`](../packages/client/ui-primitives), [`client-ui-slots`](../packages/client/ui-slots), [`commands`](../packages/interaction/commands), [`invariants`](../packages/runtime-diagnostics/invariants) |
+diff -ruN a/packages/bundle/web-app/cordis.patch.yml b/packages/bundle/web-app/cordis.patch.yml
+--- a/packages/bundle/web-app/cordis.patch.yml	2026-08-13 11:38:46.000000000 +0000
++++ b/packages/bundle/web-app/cordis.patch.yml	2026-08-15 18:15:34.412677522 +0000
+@@ -202,6 +202,10 @@
+     - id: ui-tool
+       name: '@deepseek-ai/dsh-client-ui-tool'
+ 
++    # Read-only failed Tool-call aggregate in the Session utilities strip.
++    - id: ui-tool-failures
++      name: '@deepseek-ai/dsh-client-ui-tool-failures'
++
+     - id: ui-cordis
+       name: '@deepseek-ai/dsh-client-ui-cordis'
+ 
+diff -ruN a/packages/bundle/web-app/package.json b/packages/bundle/web-app/package.json
+--- a/packages/bundle/web-app/package.json	2026-08-13 11:38:46.000000000 +0000
++++ b/packages/bundle/web-app/package.json	2026-08-15 18:15:34.396850141 +0000
+@@ -78,6 +78,7 @@
+     "@deepseek-ai/dsh-client-ui-jobs": "workspace:^",
+     "@deepseek-ai/dsh-client-ui-theme": "workspace:^",
+     "@deepseek-ai/dsh-client-ui-tool": "workspace:^",
++    "@deepseek-ai/dsh-client-ui-tool-failures": "workspace:^",
+     "@deepseek-ai/dsh-client-ui-workflow-run": "workspace:^",
+     "@deepseek-ai/dsh-client-ui-trajectory": "workspace:^",
+     "@deepseek-ai/dsh-client-ui-workspace": "workspace:^",
+diff -ruN a/packages/client/ui-tool-failures/README.i18n.yaml b/packages/client/ui-tool-failures/README.i18n.yaml
+--- a/packages/client/ui-tool-failures/README.i18n.yaml	1970-01-01 00:00:00.000000000 +0000
++++ b/packages/client/ui-tool-failures/README.i18n.yaml	2026-08-15 18:08:02.000000000 +0000
+@@ -0,0 +1,6 @@
++# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
++# side as of the last confirmed-consistent state. Both languages carry equal authority;
++# after editing either side, bring the other along and re-record with:
++#   pnpm run verify-translation-pairing --write packages/client/ui-tool-failures/README.md
++README.md: 6e686285b5cf7a1f67b6888189b2ca75bb9c29c9
++README.zh.md: 6e43fa02a95e01dde05667325a2981f0ce71fb05
+diff -ruN a/packages/client/ui-tool-failures/README.md b/packages/client/ui-tool-failures/README.md
+--- a/packages/client/ui-tool-failures/README.md	1970-01-01 00:00:00.000000000 +0000
++++ b/packages/client/ui-tool-failures/README.md	2026-08-15 18:07:29.000000000 +0000
+@@ -0,0 +1,22 @@
++# @deepseek-ai/dsh-client-ui-tool-failures
++
++English | [中文](README.zh.md)
++
++Web Session utility that derives failed Tool calls from the already-published conversation snapshot. The trigger is absent while the loaded history contains no failures. Once a Tool result fails, the right-aligned Session utility shows an error dot and count; opening it lists failures newest-first with the Tool name and the first useful result line.
++
++The counter follows the same terminal-state semantics as [`dsh-client-ui-tool`](../ui-tool/README.md): `error.code === 'interrupted'` is stopped rather than failed, so interrupted calls are excluded. Nested Code Dispatch calls are walked recursively and count independently. A result whose call head fell outside the loaded history window falls back to its `callId`; an empty result body falls back to structured error metadata and then localized generic copy.
++
++The plugin owns no Host service, RPC, Session event, store, or manual subscription. It reads `ConversationSnapshot.nodes` and `hasMore` only through the framework `useSession` hook. When older history remains unloaded, the expanded popover says so explicitly: the visible number is the count for the loaded window, not a claim about unseen history. Escape closes the list and restores trigger focus; a pointer press outside closes it as well.
++
++## Model Experience
++
++None, as this browser-only read projection over durable Tool results does not alter prompts, messages, schemas, tool execution, or result content.
++
++#### KV Cache effect
++
++None; it never assembles or sends a provider request.
++
++## Known Limitations and Deferred Work
++
++- The count covers the loaded conversation window. When `hasMore` is true, older Tool failures are intentionally not fetched merely to populate UI chrome.
++- Rows summarize the first non-empty text line rather than duplicating the full Tool result card; the transcript remains the detailed failure surface.
+diff -ruN a/packages/client/ui-tool-failures/README.zh.md b/packages/client/ui-tool-failures/README.zh.md
+--- a/packages/client/ui-tool-failures/README.zh.md	1970-01-01 00:00:00.000000000 +0000
++++ b/packages/client/ui-tool-failures/README.zh.md	2026-08-15 18:03:03.000000000 +0000
+@@ -0,0 +1,22 @@
++# @deepseek-ai/dsh-client-ui-tool-failures
++
++[English](README.md) | 中文
++
++Web Session 工具项：从已经发布的 conversation snapshot 中派生失败的 Tool 调用。当前已加载历史中没有失败时，触发器完全不显示；一旦 Tool result 失败，Session 页头最右侧会显示错误状态点和数量，展开后按时间从新到旧列出失败项，并显示 Tool 名称与结果中的第一条有效文本。
++
++计数规则与 [`dsh-client-ui-tool`](../ui-tool/README.md) 的终态语义一致：`error.code === 'interrupted'` 表示「已停止」而不是「失败」，因此不会计入。Code Dispatch 的嵌套调用会递归遍历并分别计数。若历史窗口截断导致调用头不在已加载范围内，则用 `callId` 作为名称；若结果没有文本，则依次退回结构化错误信息与本地化通用失败文案。
++
++本插件不拥有 Host service、RPC、Session event、store 或手写订阅，只通过框架 `useSession` hook 读取 `ConversationSnapshot.nodes` 与 `hasMore`。当还有更早历史未加载时，展开层会明确提示：当前数字只代表已加载窗口，而不是对不可见历史的全会话总数。Escape 会关闭列表并把焦点还给触发器；在列表外按下指针也会关闭。
++
++## 模型体验
++
++无。本包只是浏览器端对持久 Tool result 的只读投影，不改变 prompt、消息、schema、Tool 执行或结果内容。
++
++#### KV Cache effect
++
++无；它从不组装或发送 provider 请求。
++
++## 已知限制与暂缓事项
++
++- 数量只覆盖已加载的 conversation window。当 `hasMore` 为真时，不会为了页头 UI 专门抓取更早的 Tool failure。
++- 每行只摘要第一条非空文本，不复制完整 Tool result card；详细失败内容仍以 transcript 为准。
+diff -ruN a/packages/client/ui-tool-failures/package.json b/packages/client/ui-tool-failures/package.json
+--- a/packages/client/ui-tool-failures/package.json	1970-01-01 00:00:00.000000000 +0000
++++ b/packages/client/ui-tool-failures/package.json	2026-08-15 18:00:11.000000000 +0000
+@@ -0,0 +1,77 @@
++{
++  "name": "@deepseek-ai/dsh-client-ui-tool-failures",
++  "description": "Session-header failed Tool call counter and expandable failure list",
++  "version": "0.1.0-rc.5",
++  "type": "module",
++  "main": "lib/index.js",
++  "types": "lib/types/index.d.ts",
++  "exports": {
++    ".": {
++      "types": "./lib/types/index.d.ts",
++      "default": "./lib/index.js"
++    },
++    "./invariant": {
++      "types": "./lib/types/invariant.d.ts",
++      "default": "./lib/invariant.js"
++    },
++    "./client": {
++      "types": "./lib/types/client/index.d.ts",
++      "default": "./lib/client.js"
++    },
++    "./src/*": "./src/*",
++    "./package.json": "./package.json"
++  },
++  "dsh": {
++    "client": {
++      "inject": [
++        "@deepseek-ai/dsh-client-locale",
++        "@deepseek-ai/dsh-client-runtime",
++        "@deepseek-ai/dsh-client-ui-conversation",
++        "@deepseek-ai/dsh-client-ui-primitives"
++      ],
++      "platform": "web"
++    }
++  },
++  "scripts": {
++    "bundle": "tsdown",
++    "watch": "tsdown --watch"
++  },
++  "license": "MIT",
++  "repository": {
++    "type": "git",
++    "url": "git+https://github.com/deepseek-ai/deepseek-harness.git",
++    "directory": "packages/client/ui-tool-failures"
++  },
++  "publishConfig": {
++    "access": "public"
++  },
++  "dependencies": {
++    "react": "^18.2.0"
++  },
++  "peerDependencies": {
++    "@deepseek-ai/dsh-client-locale": "workspace:^",
++    "@deepseek-ai/dsh-client-runtime": "workspace:^",
++    "@deepseek-ai/dsh-client-ui-conversation": "workspace:^",
++    "@deepseek-ai/dsh-client-ui-primitives": "workspace:^",
++    "@deepseek-ai/dsh-client-ui-slots": "workspace:^",
++    "@deepseek-ai/dsh-invariants": "workspace:^",
++    "@deepseek-ai/cordis": "workspace:^"
++  },
++  "devDependencies": {
++    "@deepseek-ai/dsh-client-locale": "workspace:^",
++    "@deepseek-ai/dsh-client-runtime": "workspace:^",
++    "@deepseek-ai/dsh-client-test-runtime": "workspace:^",
++    "@deepseek-ai/dsh-client-ui-conversation": "workspace:^",
++    "@deepseek-ai/dsh-client-ui-primitives": "workspace:^",
++    "@deepseek-ai/dsh-client-ui-slots": "workspace:^",
++    "@deepseek-ai/dsh-invariants": "workspace:^",
++    "@types/react": "~18.3.1",
++    "@deepseek-ai/cordis": "workspace:^"
++  },
++  "files": [
++    "lib/index.js",
++    "lib/invariant.js",
++    "lib/client.js",
++    "lib/types/**/*.d.ts"
++  ]
++}
+diff -ruN a/packages/client/ui-tool-failures/src/client/ToolFailureAction.module.css b/packages/client/ui-tool-failures/src/client/ToolFailureAction.module.css
+--- a/packages/client/ui-tool-failures/src/client/ToolFailureAction.module.css	1970-01-01 00:00:00.000000000 +0000
++++ b/packages/client/ui-tool-failures/src/client/ToolFailureAction.module.css	2026-08-15 18:00:11.000000000 +0000
+@@ -0,0 +1,113 @@
++.root {
++  position: relative;
++}
++
++.trigger {
++  display: inline-flex;
++  align-items: center;
++  gap: 3px;
++  min-height: 28px;
++  padding: 3px 2px;
++  border: 0;
++  border-radius: 6px;
