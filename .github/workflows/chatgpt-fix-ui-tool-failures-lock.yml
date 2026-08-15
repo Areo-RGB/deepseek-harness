@@ -29,16 +29,10 @@ jobs:
           start = text.index('\n  packages/bundle/web-app:\n')
           end = text.index('\n  packages/', start + 1)
           section = text[start:end]
-          needle = """      '@deepseek-ai/dsh-client-ui-tool':
-                specifier: workspace:^
-                version: link:../../client/ui-tool
-          """
-          addition = """      '@deepseek-ai/dsh-client-ui-tool-failures':
-                specifier: workspace:^
-                version: link:../../client/ui-tool-failures
-          """
+          needle = "        version: link:../../client/ui-tool\n"
+          addition = "      '@deepseek-ai/dsh-client-ui-tool-failures':\n        specifier: workspace:^\n        version: link:../../client/ui-tool-failures\n"
           if section.count(needle) != 1:
-              raise SystemExit(f'expected one web-app ui-tool entry, got {section.count(needle)}')
+              raise SystemExit(f'expected one web-app ui-tool link, got {section.count(needle)}')
           if '@deepseek-ai/dsh-client-ui-tool-failures' in section:
               raise SystemExit('web-app lock importer already contains ui-tool-failures')
           section = section.replace(needle, needle + addition)
