@@ -1,0 +1,104 @@
+diff -ruN a/docs/config-catalog.i18n.yaml b/docs/config-catalog.i18n.yaml
+--- a/docs/config-catalog.i18n.yaml	2026-08-13 11:38:46.000000000 +0000
++++ b/docs/config-catalog.i18n.yaml	2026-08-15 18:15:34.481577560 +0000
+@@ -2,5 +2,5 @@
+ # side as of the last confirmed-consistent state. Both languages carry equal authority;
+ # after editing either side, bring the other along and re-record with:
+ #   pnpm run verify-translation-pairing --write docs/config-catalog.md
+-config-catalog.md: 20919b3fdc5ab26255465949d72bdce8d356a529
+-config-catalog.zh.md: 8dfb49df5e3f5906af859a4de83ebc44f315a0bd
++config-catalog.md: f23088ae8fab464ed3d762abd63c88b48d39dc85
++config-catalog.zh.md: 27119e1e97de432b511b4166d117700d0384e94c
+diff -ruN a/docs/config-catalog.md b/docs/config-catalog.md
+--- a/docs/config-catalog.md	2026-08-13 11:38:46.000000000 +0000
++++ b/docs/config-catalog.md	2026-08-15 18:15:34.465919104 +0000
+@@ -3056,6 +3056,7 @@
+ - `@deepseek-ai/dsh-client-ui-subagent` ([`packages/client/ui-subagent/src/index.ts`](../packages/client/ui-subagent/src/index.ts))
+ - `@deepseek-ai/dsh-client-ui-theme` ([`packages/client/ui-theme/src/index.ts`](../packages/client/ui-theme/src/index.ts))
+ - `@deepseek-ai/dsh-client-ui-tool` ([`packages/client/ui-tool/src/index.ts`](../packages/client/ui-tool/src/index.ts))
++- `@deepseek-ai/dsh-client-ui-tool-failures` ([`packages/client/ui-tool-failures/src/index.ts`](../packages/client/ui-tool-failures/src/index.ts))
+ - `@deepseek-ai/dsh-client-ui-trajectory` ([`packages/client/ui-trajectory/src/index.ts`](../packages/client/ui-trajectory/src/index.ts))
+ - `@deepseek-ai/dsh-client-ui-user-questions` ([`packages/client/ui-user-questions/src/index.ts`](../packages/client/ui-user-questions/src/index.ts))
+ - `@deepseek-ai/dsh-client-ui-workflow-run` ([`packages/client/ui-workflow-run/src/index.ts`](../packages/client/ui-workflow-run/src/index.ts))
+diff -ruN a/docs/config-catalog.zh.md b/docs/config-catalog.zh.md
+--- a/docs/config-catalog.zh.md	2026-08-13 11:38:46.000000000 +0000
++++ b/docs/config-catalog.zh.md	2026-08-15 18:15:34.473573857 +0000
+@@ -3058,6 +3058,7 @@
+ - `@deepseek-ai/dsh-client-ui-subagent`（[`packages/client/ui-subagent/src/index.ts`](../packages/client/ui-subagent/src/index.ts)）
+ - `@deepseek-ai/dsh-client-ui-theme`（[`packages/client/ui-theme/src/index.ts`](../packages/client/ui-theme/src/index.ts)）
+ - `@deepseek-ai/dsh-client-ui-tool`（[`packages/client/ui-tool/src/index.ts`](../packages/client/ui-tool/src/index.ts)）
++- `@deepseek-ai/dsh-client-ui-tool-failures`（[`packages/client/ui-tool-failures/src/index.ts`](../packages/client/ui-tool-failures/src/index.ts)）
+ - `@deepseek-ai/dsh-client-ui-trajectory`（[`packages/client/ui-trajectory/src/index.ts`](../packages/client/ui-trajectory/src/index.ts)）
+ - `@deepseek-ai/dsh-client-ui-user-questions`（[`packages/client/ui-user-questions/src/index.ts`](../packages/client/ui-user-questions/src/index.ts)）
+ - `@deepseek-ai/dsh-client-ui-workflow-run`（[`packages/client/ui-workflow-run/src/index.ts`](../packages/client/ui-workflow-run/src/index.ts)）
+diff -ruN a/docs/module-graph.i18n.yaml b/docs/module-graph.i18n.yaml
+--- a/docs/module-graph.i18n.yaml	2026-08-13 11:38:46.000000000 +0000
++++ b/docs/module-graph.i18n.yaml	2026-08-15 18:15:34.456630265 +0000
+@@ -2,5 +2,5 @@
+ # side as of the last confirmed-consistent state. Both languages carry equal authority;
+ # after editing either side, bring the other along and re-record with:
+ #   pnpm run verify-translation-pairing --write docs/module-graph.md
+-module-graph.md: 24ee9a4815b4236336ae37f6c926dba4718dafb9
+-module-graph.zh.md: d87feb946a43a2f9d391e7894b4a143af4e18406
++module-graph.md: ad9eeead344b137de70f2dfda6e3d5304b79d451
++module-graph.zh.md: 2d43dff075836f1f6a45cf987be65d07a601dd95
+diff -ruN a/docs/module-graph.md b/docs/module-graph.md
+--- a/docs/module-graph.md	2026-08-13 11:38:46.000000000 +0000
++++ b/docs/module-graph.md	2026-08-15 18:15:34.439682020 +0000
+@@ -151,6 +151,7 @@
+     pkg_client_ui_subagent["client-ui-subagent"]
+     pkg_client_ui_theme["client-ui-theme"]
+     pkg_client_ui_tool["client-ui-tool"]
++    pkg_client_ui_tool_failures["client-ui-tool-failures"]
+     pkg_client_ui_trajectory["client-ui-trajectory"]
+     pkg_client_ui_user_questions["client-ui-user-questions"]
+     pkg_client_ui_workflow_run["client-ui-workflow-run"]
+@@ -1348,6 +1349,12 @@
+   pkg_client_ui_tool --> pkg_client_ui_primitives
+   pkg_client_ui_tool --> pkg_client_ui_slots
+   pkg_client_ui_tool --> pkg_invariants
++  pkg_client_ui_tool_failures --> pkg_client_locale
++  pkg_client_ui_tool_failures --> pkg_client_runtime
++  pkg_client_ui_tool_failures --> pkg_client_ui_conversation
++  pkg_client_ui_tool_failures --> pkg_client_ui_primitives
++  pkg_client_ui_tool_failures --> pkg_client_ui_slots
++  pkg_client_ui_tool_failures --> pkg_invariants
+   pkg_client_ui_workflow_run --> pkg_client_locale
+   pkg_client_ui_workflow_run --> pkg_client_runtime
+   pkg_client_ui_workflow_run --> pkg_client_ui_conversation
+@@ -1629,6 +1636,7 @@
+ | [`client-ui-plan`](../packages/client/ui-plan) | `client` | [`api-remotes`](../packages/api/remotes), [`client-locale`](../packages/client/locale), [`client-runtime`](../packages/client/runtime), [`client-ui-conversation`](../packages/client/ui-conversation), [`client-ui-primitives`](../packages/client/ui-primitives), [`client-ui-slots`](../packages/client/ui-slots), [`invariants`](../packages/runtime-diagnostics/invariants), [`plan-mode`](../packages/plan/plan-mode) |
+ | [`client-ui-subagent`](../packages/client/ui-subagent) | `client` | [`client-locale`](../packages/client/locale), [`client-runtime`](../packages/client/runtime), [`client-ui-conversation`](../packages/client/ui-conversation), [`client-ui-input-trigger`](../packages/client/ui-input-trigger), [`client-ui-primitives`](../packages/client/ui-primitives), [`client-ui-slots`](../packages/client/ui-slots), [`invariants`](../packages/runtime-diagnostics/invariants), [`subagent`](../packages/subagent/subagent), [`token-meter`](../packages/llm/token-meter) |
+ | [`client-ui-tool`](../packages/client/ui-tool) | `client` | [`api-remotes`](../packages/api/remotes), [`client-locale`](../packages/client/locale), [`client-runtime`](../packages/client/runtime), [`client-ui-conversation`](../packages/client/ui-conversation), [`client-ui-primitives`](../packages/client/ui-primitives), [`client-ui-slots`](../packages/client/ui-slots), [`invariants`](../packages/runtime-diagnostics/invariants) |
++| [`client-ui-tool-failures`](../packages/client/ui-tool-failures) | `client` | [`client-locale`](../packages/client/locale), [`client-runtime`](../packages/client/runtime), [`client-ui-conversation`](../packages/client/ui-conversation), [`client-ui-primitives`](../packages/client/ui-primitives), [`client-ui-slots`](../packages/client/ui-slots), [`invariants`](../packages/runtime-diagnostics/invariants) |
+ | [`client-ui-workflow-run`](../packages/client/ui-workflow-run) | `client` | [`client-locale`](../packages/client/locale), [`client-runtime`](../packages/client/runtime), [`client-ui-conversation`](../packages/client/ui-conversation), [`client-ui-primitives`](../packages/client/ui-primitives), [`client-ui-slots`](../packages/client/ui-slots), [`invariants`](../packages/runtime-diagnostics/invariants), [`session`](../packages/core/session), [`tool-workflow`](../packages/workflow/tool-workflow), [`workflow`](../packages/workflow/workflow) |
+ | [`host-directory-picker-auto`](../packages/host/directory-picker-auto) | `host` | [`client-ui-directory-picker-browse`](../packages/client/ui-directory-picker-browse), [`client-ui-directory-picker-native`](../packages/client/ui-directory-picker-native), [`host-directory-picker-browse`](../packages/host/directory-picker-browse), [`host-directory-picker-native`](../packages/host/directory-picker-native), [`host-webserver`](../packages/host/webserver), [`invariants`](../packages/runtime-diagnostics/invariants) |
+ | [`session-log-export`](../packages/session-query/session-log-export) | `session-query` | [`client-locale`](../packages/client/locale), [`client-runtime`](../packages/client/runtime), [`client-ui-commands`](../packages/client/ui-commands), [`client-ui-conversation`](../packages/client/ui-conversation), [`client-ui-primitives`](../packages/client/ui-primitives), [`client-ui-slots`](../packages/client/ui-slots), [`commands`](../packages/interaction/commands), [`invariants`](../packages/runtime-diagnostics/invariants) |
+diff -ruN a/docs/module-graph.zh.md b/docs/module-graph.zh.md
+--- a/docs/module-graph.zh.md	2026-08-13 11:38:46.000000000 +0000
++++ b/docs/module-graph.zh.md	2026-08-15 18:15:34.448460468 +0000
+@@ -153,6 +153,7 @@
+     pkg_client_ui_subagent["client-ui-subagent"]
+     pkg_client_ui_theme["client-ui-theme"]
+     pkg_client_ui_tool["client-ui-tool"]
++    pkg_client_ui_tool_failures["client-ui-tool-failures"]
+     pkg_client_ui_trajectory["client-ui-trajectory"]
+     pkg_client_ui_user_questions["client-ui-user-questions"]
+     pkg_client_ui_workflow_run["client-ui-workflow-run"]
+@@ -1350,6 +1351,12 @@
+   pkg_client_ui_tool --> pkg_client_ui_primitives
+   pkg_client_ui_tool --> pkg_client_ui_slots
+   pkg_client_ui_tool --> pkg_invariants
++  pkg_client_ui_tool_failures --> pkg_client_locale
++  pkg_client_ui_tool_failures --> pkg_client_runtime
++  pkg_client_ui_tool_failures --> pkg_client_ui_conversation
++  pkg_client_ui_tool_failures --> pkg_client_ui_primitives
++  pkg_client_ui_tool_failures --> pkg_client_ui_slots
++  pkg_client_ui_tool_failures --> pkg_invariants
+   pkg_client_ui_workflow_run --> pkg_client_locale
+   pkg_client_ui_workflow_run --> pkg_client_runtime
+   pkg_client_ui_workflow_run --> pkg_client_ui_conversation
+@@ -1631,6 +1638,7 @@
+ | [`client-ui-plan`](../packages/client/ui-plan) | `client` | [`api-remotes`](../packages/api/remotes), [`client-locale`](../packages/client/locale), [`client-runtime`](../packages/client/runtime), [`client-ui-conversation`](../packages/client/ui-conversation), [`client-ui-primitives`](../packages/client/ui-primitives), [`client-ui-slots`](../packages/client/ui-slots), [`invariants`](../packages/runtime-diagnostics/invariants), [`plan-mode`](../packages/plan/plan-mode) |
+ | [`client-ui-subagent`](../packages/client/ui-subagent) | `client` | [`client-locale`](../packages/client/locale), [`client-runtime`](../packages/client/runtime), [`client-ui-conversation`](../packages/client/ui-conversation), [`client-ui-input-trigger`](../packages/client/ui-input-trigger), [`client-ui-primitives`](../packages/client/ui-primitives), [`client-ui-slots`](../packages/client/ui-slots), [`invariants`](../packages/runtime-diagnostics/invariants), [`subagent`](../packages/subagent/subagent), [`token-meter`](../packages/llm/token-meter) |
+ | [`client-ui-tool`](../packages/client/ui-tool) | `client` | [`api-remotes`](../packages/api/remotes), [`client-locale`](../packages/client/locale), [`client-runtime`](../packages/client/ui-conversation
