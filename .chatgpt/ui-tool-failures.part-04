@@ -1,0 +1,133 @@
+)).toEqual([
++      'writepermission denied',
++      `read${en['failure.unknown']}`,
++    ])
++    expect(screen.getByText(en['history.partial'])).toBeDefined()
++  })
++})
++
++describe('ToolFailureAction dismissal', () => {
++  it('closes on Escape, restores trigger focus, and closes on an outside pointer press', () => {
++    render(<ToolFailureAction {...props([settled()])} />)
++    const trigger = screen.getByRole('button', { name: '1 failed tool call' })
++
++    fireEvent.click(trigger)
++    expect(screen.getByRole('list', { name: en['list.aria'] })).toBeDefined()
++    fireEvent.keyDown(trigger, { key: 'Escape' })
++    expect(trigger.getAttribute('aria-expanded')).toBe('false')
++    expect(document.activeElement).toBe(trigger)
++
++    fireEvent.click(trigger)
++    fireEvent.pointerDown(screen.getByRole('list', { name: en['list.aria'] }))
++    expect(trigger.getAttribute('aria-expanded')).toBe('true')
++    fireEvent.pointerDown(document.body)
++    expect(trigger.getAttribute('aria-expanded')).toBe('false')
++  })
++})
+diff -ruN a/packages/client/ui-tool-failures/tsconfig.json b/packages/client/ui-tool-failures/tsconfig.json
+--- a/packages/client/ui-tool-failures/tsconfig.json	1970-01-01 00:00:00.000000000 +0000
++++ b/packages/client/ui-tool-failures/tsconfig.json	2026-08-15 18:00:11.000000000 +0000
+@@ -0,0 +1,19 @@
++{
++  "extends": "../../../tsconfig.base.client.json",
++  "compilerOptions": {
++    "rootDir": "src",
++    "outDir": "lib/types"
++  },
++  "include": [
++    "src"
++  ],
++  "references": [
++    { "path": "../../../vendor/cordis" },
++    { "path": "../locale" },
++    { "path": "../runtime" },
++    { "path": "../ui-conversation" },
++    { "path": "../ui-primitives" },
++    { "path": "../ui-slots" },
++    { "path": "../../runtime-diagnostics/invariants" }
++  ]
++}
+diff -ruN a/packages/client/ui-tool-failures/tsdown.config.ts b/packages/client/ui-tool-failures/tsdown.config.ts
+--- a/packages/client/ui-tool-failures/tsdown.config.ts	1970-01-01 00:00:00.000000000 +0000
++++ b/packages/client/ui-tool-failures/tsdown.config.ts	2026-08-15 18:00:11.000000000 +0000
+@@ -0,0 +1,3 @@
++import { clientBundle } from '../tsdown.client.ts'
++
++export default clientBundle('@deepseek-ai/dsh-client-ui-tool-failures', ['lib/types/index.js', 'lib/types/invariant.js'])
+diff -ruN a/packages/extensions/cordis-client-runner/src/client/slot-catalog.ts b/packages/extensions/cordis-client-runner/src/client/slot-catalog.ts
+--- a/packages/extensions/cordis-client-runner/src/client/slot-catalog.ts	2026-08-13 11:38:46.000000000 +0000
++++ b/packages/extensions/cordis-client-runner/src/client/slot-catalog.ts	2026-08-15 18:15:34.421296694 +0000
+@@ -960,6 +960,7 @@
+     slotInject: '',
+     declaredBy: 'an entry in \'conversation.session.header\' (client-ui-conversation), so it exists while that entry is mounted',
+     occupants: [
++      'client-ui-tool-failures ToolFailureAction id \'tool-failure-counter\'',
+       'session-log-export SessionLogDownloadHeaderAction id \'session-log-download\'',
+     ],
+     replaceRisk: 'none',
+diff -ruN a/pnpm-lock.yaml b/pnpm-lock.yaml
+--- a/pnpm-lock.yaml	2026-08-13 11:38:46.000000000 +0000
++++ b/pnpm-lock.yaml	2026-08-15 18:15:34.387512082 +0000
+@@ -2103,6 +2103,40 @@
+         specifier: ~18.3.1
+         version: 18.3.31
+ 
++  packages/client/ui-tool-failures:
++    dependencies:
++      react:
++        specifier: ^18.2.0
++        version: 18.3.1
++    devDependencies:
++      '@deepseek-ai/cordis':
++        specifier: workspace:^
++        version: link:../../../vendor/cordis
++      '@deepseek-ai/dsh-client-locale':
++        specifier: workspace:^
++        version: link:../locale
++      '@deepseek-ai/dsh-client-runtime':
++        specifier: workspace:^
++        version: link:../runtime
++      '@deepseek-ai/dsh-client-test-runtime':
++        specifier: workspace:^
++        version: link:../../test-support/client-runtime
++      '@deepseek-ai/dsh-client-ui-conversation':
++        specifier: workspace:^
++        version: link:../ui-conversation
++      '@deepseek-ai/dsh-client-ui-primitives':
++        specifier: workspace:^
++        version: link:../ui-primitives
++      '@deepseek-ai/dsh-client-ui-slots':
++        specifier: workspace:^
++        version: link:../ui-slots
++      '@deepseek-ai/dsh-invariants':
++        specifier: workspace:^
++        version: link:../../runtime-diagnostics/invariants
++      '@types/react':
++        specifier: ~18.3.1
++        version: 18.3.31
++
+   packages/client/ui-layout:
+     devDependencies:
+       '@deepseek-ai/cordis':
+diff -ruN a/scripts/verify-package-readme-model-experience.ts b/scripts/verify-package-readme-model-experience.ts
+--- a/scripts/verify-package-readme-model-experience.ts	2026-08-13 11:38:46.000000000 +0000
++++ b/scripts/verify-package-readme-model-experience.ts	2026-08-15 18:15:34.430079110 +0000
+@@ -73,6 +73,7 @@
+   'packages/client/ui-conversation': { kind: 'none', reason: 'Browser-side UI plugin layer; registers nothing model-facing.' },
+   'packages/client/ui-message-feedback': { kind: 'none', reason: 'Browser-side controls over the message-feedback sidecar; ratings and notes never enter the Session log, model context, or telemetry.' },
+   'packages/client/ui-tool': { kind: 'none', reason: 'Browser-side Tool presentation layer; renders logged calls without changing model context.' },
++  'packages/client/ui-tool-failures': { kind: 'none', reason: 'Browser-side read-only aggregate of logged Tool failures; it changes no model context.' },
+   'packages/client/ui-jobs': { kind: 'none', reason: 'Browser-side read-only projection of ctx.jobs records; dsh-tool-jobs owns the model-facing behavior.' },
+   'packages/client/ui-workflow-run': { kind: 'none', reason: 'Browser-side UI plugin layer; renders durable workflow records without changing model context.' },
+   'packages/client/ui-input-trigger': { kind: 'none', reason: 'Browser-side UI plugin layer; registers nothing model-facing.' },
+diff -ruN a/tsconfig.client.json b/tsconfig.client.json
+--- a/tsconfig.client.json	2026-08-13 11:38:46.000000000 +0000
++++ b/tsconfig.client.json	2026-08-15 18:15:34.373787975 +0000
+@@ -66,6 +66,7 @@
+     { "path": "./packages/client/ui-sidebar" },
+     { "path": "./packages/client/ui-conversation" },
+     { "path": "./packages/client/ui-tool" },
++    { "path": "./packages/client/ui-tool-failures" },
+     { "path": "./packages/client/ui-deliverables" },
+     { "path": "./packages/client/ui-workflow-run" },
+     { "path": "./packages/client/ui-workspace" },
