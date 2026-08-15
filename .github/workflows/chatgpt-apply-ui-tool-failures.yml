@@ -31,7 +31,7 @@ jobs:
         run: |
           set -euo pipefail
           patch -p1 < /tmp/ui-tool-failures.patch
-          test "$(git diff --name-only | wc -l)" -eq 28
+          test "$(git status --porcelain | wc -l)" -eq 28
 
       - name: Commit clean feature tree
         shell: bash
@@ -46,4 +46,4 @@ jobs:
           git commit -m "feat(client): add failed tool call counter"
           git push origin HEAD:feat/ui-tool-failure-counter
 
-# retry after exact chunk verification
+# retry with untracked files included in change-count gate
