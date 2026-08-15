@@ -1,0 +1,47 @@
+name: ChatGPT apply UI tool failure plugin
+
+on:
+  push:
+    branches:
+      - feat/ui-tool-failure-counter
+    paths:
+      - .github/workflows/chatgpt-apply-ui-tool-failures.yml
+
+permissions:
+  contents: write
+
+jobs:
+  apply-patch:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Check out feature branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Reassemble and verify patch
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat .chatgpt/ui-tool-failures.part-* > /tmp/ui-tool-failures.patch
+          echo "2c8921d0c4a41d39bdcd24272eeae32ada46a16019096de2c501341eee51d0c4  /tmp/ui-tool-failures.patch" | sha256sum -c -
+
+      - name: Apply plugin patch
+        shell: bash
+        run: |
+          set -euo pipefail
+          patch -p1 < /tmp/ui-tool-failures.patch
+          test "$(git diff --name-only | wc -l)" -eq 28
+
+      - name: Commit clean feature tree
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -f .chatgpt/ui-tool-failures.part-*
+          rmdir .chatgpt
+          rm -f .github/workflows/chatgpt-apply-ui-tool-failures.yml
+          git add -A
+          git config user.name "ChatGPT"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "feat(client): add failed tool call counter"
+          git push origin HEAD:feat/ui-tool-failure-counter
