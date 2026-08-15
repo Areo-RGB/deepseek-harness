@@ -45,3 +45,5 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git commit -m "feat(client): add failed tool call counter"
           git push origin HEAD:feat/ui-tool-failure-counter
+
+# retry after exact chunk verification
