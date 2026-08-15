@@ -1,0 +1,57 @@
+name: ChatGPT fix UI tool failures lock importer
+
+on:
+  push:
+    branches:
+      - feat/ui-tool-failure-counter
+    paths:
+      - .github/workflows/chatgpt-fix-ui-tool-failures-lock.yml
+
+permissions:
+  contents: write
+
+jobs:
+  fix-lock:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Add Web app workspace dependency to lock importer
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          path = Path('pnpm-lock.yaml')
+          text = path.read_text()
+          old = """      '@deepseek-ai/dsh-client-ui-tool':
+                specifier: workspace:^
+                version: link:../../client/ui-tool
+              '@deepseek-ai/dsh-client-ui-trajectory':
+          """
+          new = """      '@deepseek-ai/dsh-client-ui-tool':
+                specifier: workspace:^
+                version: link:../../client/ui-tool
+              '@deepseek-ai/dsh-client-ui-tool-failures':
+                specifier: workspace:^
+                version: link:../../client/ui-tool-failures
+              '@deepseek-ai/dsh-client-ui-trajectory':
+          """
+          if text.count(old) != 1:
+              raise SystemExit(f'expected exactly one lock importer target, got {text.count(old)}')
+          path.write_text(text.replace(old, new))
+          PY
+          grep -A3 -B3 "dsh-client-ui-tool-failures" pnpm-lock.yaml
+
+      - name: Commit clean lock fix
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm .github/workflows/chatgpt-fix-ui-tool-failures-lock.yml
+          git add pnpm-lock.yaml .github/workflows/chatgpt-fix-ui-tool-failures-lock.yml
+          git config user.name "ChatGPT"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "fix(lockfile): link UI tool failures in web app"
+          git push origin HEAD:feat/ui-tool-failure-counter
