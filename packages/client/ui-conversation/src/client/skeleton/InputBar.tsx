@@ -561,10 +561,11 @@ export function InputBar({
     ? null
     : <PermissionSelect key={sessionId} value={permissions} locked={locked} command={command} t={t} />
 
-  // Mirror-layer decorations: a visible backdrop with transparent text. The
-  // claim token highlights through behind the textarea glyphs; each U+FFFC
-  // placeholder renders as a chip (the textarea's own glyph is invisible, the
-  // backdrop chip supplies the visual); the claim hint is ghost text.
+  // Mirror-layer decorations: a backdrop above the textarea whose plain-text
+  // glyphs are transparent (the textarea paints them natively). The claim
+  // token and text-ref ranges highlight on top of the native glyphs; each
+  // U+FFFC placeholder renders as a chip (the textarea's own U+FFFC cell is
+  // blank, the backdrop chip supplies the visual); the claim hint is ghost text.
   const deco = input === undefined ? INERT_DECORATIONS : deriveDecorations(input, lexicon)
   const backdrop: ReactNode[] = []
   {
@@ -689,10 +690,11 @@ export function InputBar({
         {/* One scrollport, two text layers. The hidden mirror renders draft+'\n' and stretches the
             stack to the draft's FULL height (counting rows by '\n' cannot see soft wraps); the
             absolutely-positioned backdrop and textarea ride that height, and .scroll — capped at 14
-            lines in CSS — is the only thing that scrolls. The caret belongs to the textarea and the
-            glyphs to the backdrop, so they can only stay together by moving together: one scroll
-            offset the browser applies to both layers at once, never a JS mirror between two boxes,
-            which a compositor-driven gesture outruns and leaves the words trailing the caret. */}
+            lines in CSS — is the only thing that scrolls. The caret and the plain glyphs belong to
+            the textarea; the backdrop (above it) adds only chips and colored highlights. Both layers
+            can only stay together by moving together: one scroll offset the browser applies to both
+            at once, never a JS mirror between two boxes, which a compositor-driven gesture outruns
+            and leaves the words trailing the caret. */}
         <div ref={scrollRef} className={css.scroll} data-input-scroll>
           <div className={css.grow}>
             <div aria-hidden className={css.backdrop} data-input-backdrop>{backdrop}</div>

@@ -159,14 +159,18 @@
   position: relative;
 }
 
-/* Decoration backdrop: same metrics as the textarea, transparent glyphs; only
-   the highlight backgrounds and the ghost hint show through the transparent
-   textarea background above it. */
+/* Decoration backdrop: same metrics as the textarea. Plain-text glyphs are
+   transparent — the textarea now paints them natively — so this layer only
+   adds the decorations (chips, token/ref highlights, ghost hint) on top of
+   the native text. It sits above the textarea (z-index) so the colored
+   highlights and chip labels cover the plain glyphs instead of hiding behind
+   them; pointer-events stays none so clicks and selection reach the textarea. */
 .backdrop {
   position: absolute;
   inset: 0;
+  z-index: 1;
   overflow: hidden;
-  color: var(--dsw-alias-label-primary);
+  color: transparent;
   pointer-events: none;
 }
 
@@ -213,7 +217,9 @@
   border: none;
   outline: none;
   background: transparent;
-  color: transparent;
+  /* Plain text is painted natively (visible even if the decoration backdrop
+     is missing); the backdrop layer above adds chips and colored highlights. */
+  color: var(--dsw-alias-label-primary);
   /* Business blue, not brand-primary: that token resolves to ink in this sheet. */
   caret-color: var(--dsw-alias-state-business-primary);
 }
